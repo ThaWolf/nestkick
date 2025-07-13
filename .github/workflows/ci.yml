@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [18, 20, 21]
-        package-manager: [npm, yarn, pnpm]
+        package-manager: [pnpm]
 
     steps:
       - name: Checkout code
@@ -31,51 +31,25 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Setup pnpm (if needed)
-        if: matrix.package-manager == 'pnpm'
+      - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 10.13.1
 
       - name: Install dependencies
-        run: |
-          if [ "${{ matrix.package-manager }}" = "pnpm" ]; then
-            pnpm install --frozen-lockfile
-          elif [ "${{ matrix.package-manager }}" = "yarn" ]; then
-            yarn install --frozen-lockfile
-          else
-            npm ci
-          fi
+        run: pnpm install --frozen-lockfile
+
+      - name: Build project
+        run: pnpm run build
 
       - name: Run linter
-        run: |
-          if [ "${{ matrix.package-manager }}" = "pnpm" ]; then
-            pnpm run lint
-          elif [ "${{ matrix.package-manager }}" = "yarn" ]; then
-            yarn lint
-          else
-            npm run lint
-          fi
+        run: pnpm run lint
 
       - name: Run tests
-        run: |
-          if [ "${{ matrix.package-manager }}" = "pnpm" ]; then
-            pnpm run test
-          elif [ "${{ matrix.package-manager }}" = "yarn" ]; then
-            yarn test
-          else
-            npm run test
-          fi
+        run: pnpm run test
 
       - name: Run type check
-        run: |
-          if [ "${{ matrix.package-manager }}" = "pnpm" ]; then
-            pnpm run type-check
-          elif [ "${{ matrix.package-manager }}" = "yarn" ]; then
-            yarn type-check
-          else
-            npm run type-check
-          fi
+        run: pnpm run type-check
 
   build:
     name: Build
