@@ -1,0 +1,46 @@
+import { SequelizeModuleOptions } from '@nestjs/sequelize';
+import { ConfigService } from '@nestjs/config';
+
+export const getDatabaseConfig = (configService: ConfigService): SequelizeModuleOptions => {
+  <% if (database === 'postgres') { %>
+  return {
+    dialect: 'postgres',
+    host: configService.get('DB_HOST', 'localhost'),
+    port: configService.get('DB_PORT', 5432),
+    username: configService.get('DB_USERNAME', 'postgres'),
+    password: configService.get('DB_PASSWORD', 'password'),
+    database: configService.get('DB_NAME', '<%= projectName %>'),
+    autoLoadModels: true,
+    synchronize: configService.get('NODE_ENV') !== 'production',
+    logging: configService.get('NODE_ENV') === 'development',
+  };
+  <% } else if (database === 'mysql') { %>
+  return {
+    dialect: 'mysql',
+    host: configService.get('DB_HOST', 'localhost'),
+    port: configService.get('DB_PORT', 3306),
+    username: configService.get('DB_USERNAME', 'root'),
+    password: configService.get('DB_PASSWORD', 'password'),
+    database: configService.get('DB_NAME', '<%= projectName %>'),
+    autoLoadModels: true,
+    synchronize: configService.get('NODE_ENV') !== 'production',
+    logging: configService.get('NODE_ENV') === 'development',
+  };
+  <% } else if (database === 'sqlite') { %>
+  return {
+    dialect: 'sqlite',
+    storage: configService.get('DB_PATH', './data.sqlite'),
+    autoLoadModels: true,
+    synchronize: configService.get('NODE_ENV') !== 'production',
+    logging: configService.get('NODE_ENV') === 'development',
+  };
+  <% } else if (database === 'mongodb') { %>
+  return {
+    dialect: 'mongodb',
+    url: configService.get('MONGODB_URI', 'mongodb://localhost:27017/<%= projectName %>'),
+    autoLoadModels: true,
+    synchronize: configService.get('NODE_ENV') !== 'production',
+    logging: configService.get('NODE_ENV') === 'development',
+  };
+  <% } %>
+}; 

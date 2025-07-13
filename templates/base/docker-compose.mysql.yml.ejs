@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: <%= projectName %>-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=mysql://root:password@database:3306/<%= projectName %>
+      - DB_HOST=database
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_PASSWORD=password
+      - DB_DATABASE=<%= projectName %>
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - nestkick-network
+    restart: unless-stopped
+
+  database:
+    container_name: <%= projectName %>-database
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=<%= projectName %>
+      - MYSQL_USER=nestkick
+      - MYSQL_PASSWORD=nestkick123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - nestkick-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  mysql_data:
+
+networks:
+  nestkick-network:
+    driver: bridge 

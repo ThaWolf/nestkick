@@ -1,0 +1,78 @@
+name: Release Binaries
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  build:
+    name: Build and Upload Binaries
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            pkg-target: node18-linux-x64
+            artifact-name: nestkick-linux-x64
+          - os: macos-14
+            pkg-target: node18-macos-x64
+            artifact-name: nestkick-macos-x64
+          - os: macos-14
+            pkg-target: node18-macos-arm64
+            artifact-name: nestkick-macos-arm64
+          - os: windows-latest
+            pkg-target: node18-win-x64
+            artifact-name: nestkick-win-x64.exe
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Install pkg
+        run: pnpm add -g pkg
+
+      - name: Build binary
+        run: |
+          echo "Building for target: ${{ matrix.pkg-target }}"
+          pkg dist/index.js --targets ${{ matrix.pkg-target }} --out-path dist
+        shell: bash
+
+      - name: Rename binary
+        run: |
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            mv dist/index.exe dist/${{ matrix.artifact-name }}
+          else
+            mv dist/index dist/${{ matrix.artifact-name }}
+          fi
+          ls -la dist/
+        shell: bash
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/${{ matrix.artifact-name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

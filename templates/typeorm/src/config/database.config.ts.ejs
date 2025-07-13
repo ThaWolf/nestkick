@@ -1,0 +1,46 @@
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
+
+export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOptions => {
+  <% if (database === 'postgres') { %>
+  return {
+    type: 'postgres',
+    host: configService.get('DB_HOST', 'localhost'),
+    port: configService.get('DB_PORT', 5432),
+    username: configService.get('DB_USERNAME', 'postgres'),
+    password: configService.get('DB_PASSWORD', 'password'),
+    database: configService.get('DB_NAME', '<%= projectName %>'),
+    entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+    synchronize: configService.get('NODE_ENV') !== 'production',
+    logging: configService.get('NODE_ENV') === 'development',
+  };
+  <% } else if (database === 'mysql') { %>
+  return {
+    type: 'mysql',
+    host: configService.get('DB_HOST', 'localhost'),
+    port: configService.get('DB_PORT', 3306),
+    username: configService.get('DB_USERNAME', 'root'),
+    password: configService.get('DB_PASSWORD', 'password'),
+    database: configService.get('DB_NAME', '<%= projectName %>'),
+    entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+    synchronize: configService.get('NODE_ENV') !== 'production',
+    logging: configService.get('NODE_ENV') === 'development',
+  };
+  <% } else if (database === 'sqlite') { %>
+  return {
+    type: 'sqlite',
+    database: configService.get('DB_PATH', './data.sqlite'),
+    entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+    synchronize: configService.get('NODE_ENV') !== 'production',
+    logging: configService.get('NODE_ENV') === 'development',
+  };
+  <% } else if (database === 'mongodb') { %>
+  return {
+    type: 'mongodb',
+    url: configService.get('MONGODB_URI', 'mongodb://localhost:27017/<%= projectName %>'),
+    entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+    synchronize: configService.get('NODE_ENV') !== 'production',
+    logging: configService.get('NODE_ENV') === 'development',
+  };
+  <% } %>
+}; 

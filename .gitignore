@@ -1,0 +1,23 @@
+# Node dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Local environment
+.env*
+
+# Editor/project files
+.cursor/
+.DS_Store
+
+# Cache
+.nestkick-cache/
+
+# Test/dev artifacts
+test-*/
+*-test/
+
+# OS/IDE
+.idea/
+.vscode/

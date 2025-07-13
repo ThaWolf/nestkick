@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: <%= projectName %>-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=file:./data/database.sqlite
+      - DB_PATH=./data/database.sqlite
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - sqlite_data:/app/data
+    networks:
+      - nestkick-network
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
+
+networks:
+  nestkick-network:
+    driver: bridge 

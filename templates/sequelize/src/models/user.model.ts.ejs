@@ -1,0 +1,33 @@
+import { Column, DataType, Model, Table, CreatedAt, UpdatedAt } from 'sequelize-typescript';
+
+@Table({
+  tableName: 'users',
+  timestamps: true,
+})
+export class User extends Model {
+  @Column({
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
+    primaryKey: true,
+  })
+  id: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    unique: true,
+  })
+  email: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  name: string;
+
+  @CreatedAt
+  createdAt: Date;
+
+  @UpdatedAt
+  updatedAt: Date;
+} 

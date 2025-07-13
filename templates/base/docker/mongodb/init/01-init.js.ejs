@@ -1,0 +1,26 @@
+// Initialize MongoDB database for <%= projectName %>
+// This script runs when the MongoDB container starts for the first time
+
+// Switch to the application database
+db = db.getSiblingDB('<%= projectName %>');
+
+// Create collections if they don't exist
+db.createCollection('users');
+db.createCollection('sessions');
+
+// Create indexes for better performance
+db.users.createIndex({ "email": 1 }, { unique: true });
+db.users.createIndex({ "username": 1 }, { unique: true });
+db.sessions.createIndex({ "userId": 1 });
+db.sessions.createIndex({ "expiresAt": 1 }, { expireAfterSeconds: 0 });
+
+// Create a dedicated user for the application (optional)
+// db.createUser({
+//   user: "nestkick_user",
+//   pwd: "nestkick_password",
+//   roles: [
+//     { role: "readWrite", db: "<%= projectName %>" }
+//   ]
+// });
+
+print('MongoDB initialization completed for <%= projectName %>'); 

@@ -1,0 +1,252 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  release:
+    types: [published]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18, 20, 21]
+        package-manager: [npm, yarn, pnpm]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup pnpm (if needed)
+        if: matrix.package-manager == 'pnpm'
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.13.1
+
+      - name: Install dependencies
+        run: |
+          if [ "${{ matrix.package-manager }}" = "pnpm" ]; then
+            pnpm install --frozen-lockfile
+          elif [ "${{ matrix.package-manager }}" = "yarn" ]; then
+            yarn install --frozen-lockfile
+          else
+            npm ci
+          fi
+
+      - name: Run linter
+        run: |
+          if [ "${{ matrix.package-manager }}" = "pnpm" ]; then
+            pnpm run lint
+          elif [ "${{ matrix.package-manager }}" = "yarn" ]; then
+            yarn lint
+          else
+            npm run lint
+          fi
+
+      - name: Run tests
+        run: |
+          if [ "${{ matrix.package-manager }}" = "pnpm" ]; then
+            pnpm run test
+          elif [ "${{ matrix.package-manager }}" = "yarn" ]; then
+            yarn test
+          else
+            npm run test
+          fi
+
+      - name: Run type check
+        run: |
+          if [ "${{ matrix.package-manager }}" = "pnpm" ]; then
+            pnpm run type-check
+          elif [ "${{ matrix.package-manager }}" = "yarn" ]; then
+            yarn type-check
+          else
+            npm run type-check
+          fi
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.13.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'release' && github.event.action == 'published'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.13.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Setup pkg
+        run: |
+          npm install -g pkg
+          pkg --version
+
+      - name: Build binaries
+        run: |
+          # Build for multiple platforms
+          pkg dist/index.js --targets node18-linux-x64,node18-macos-x64,node18-win-x64,node18-linux-arm64,node18-macos-arm64 --output nestkick
+
+      - name: Create release assets
+        run: |
+          # Rename binaries
+          mv nestkick-linux nestkick-linux-x64
+          mv nestkick-macos nestkick-macos-x64
+          mv nestkick-win.exe nestkick-win-x64.exe
+          mv nestkick-linux-arm64 nestkick-linux-arm64
+          mv nestkick-macos-arm64 nestkick-macos-arm64
+
+          # Create zip files
+          zip nestkick-linux-x64.zip nestkick-linux-x64
+          zip nestkick-macos-x64.zip nestkick-macos-x64
+          zip nestkick-win-x64.zip nestkick-win-x64.exe
+          zip nestkick-linux-arm64.zip nestkick-linux-arm64
+          zip nestkick-macos-arm64.zip nestkick-macos-arm64
+
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./nestkick-linux-x64.zip
+          asset_name: nestkick-linux-x64.zip
+          asset_content_type: application/zip
+
+      - name: Upload macOS x64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./nestkick-macos-x64.zip
+          asset_name: nestkick-macos-x64.zip
+          asset_content_type: application/zip
+
+      - name: Upload Windows x64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./nestkick-win-x64.zip
+          asset_name: nestkick-win-x64.zip
+          asset_content_type: application/zip
+
+      - name: Upload Linux ARM64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./nestkick-linux-arm64.zip
+          asset_name: nestkick-linux-arm64.zip
+          asset_content_type: application/zip
+
+      - name: Upload macOS ARM64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./nestkick-macos-arm64.zip
+          asset_name: nestkick-macos-arm64.zip
+          asset_content_type: application/zip
+
+  publish-npm:
+    name: Publish to NPM
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'release' && github.event.action == 'published'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.13.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Publish to NPM
+        run: pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

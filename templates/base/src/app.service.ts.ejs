@@ -1,0 +1,80 @@
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class AppService {
+  getHello(): string {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to <%= projectName %> - Powered by Nestkick</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+      background: #fafbfc;
+      color: #222;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 2.5rem 2.5rem 2rem 2.5rem;
+      max-width: 600px;
+      text-align: center;
+    }
+    .emoji {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .project {
+      font-weight: bold;
+      color: #6c63ff;
+    }
+    .powered {
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      color: #888;
+    }
+    .info {
+      margin: 0.5rem 0;
+      font-size: 1.1rem;
+    }
+    a {
+      color: #6c63ff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="emoji">🎉</span>
+    <div class="info">Welcome to your new <b>NestJS</b> application!</div>
+    <div class="info project">📦 Project: <%= projectName %></div>
+    <div class="info">🚀 Server running on: <a href="http://localhost:3000">http://localhost:3000</a></div>
+    <div class="info">🗄️ Database: <%= database %> with <%= orm.toUpperCase() %></div>
+    <div class="info">🐳 Docker: <%= docker ? 'Ready to use with docker-compose up' : 'Not configured' %></div>
+    <div class="powered">⚡ Powered by <a href="https://github.com/ThaWolf/nestkick" target="_blank">Nestkick</a></div>
+    <div class="info" style="margin-top:1.2rem;">📖 Happy coding! <span class="emoji">🎯</span></div>
+  </div>
+</body>
+</html>`;
+  }
+
+  getHealth(): { status: string; timestamp: string } {
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+    };
+  }
+} 

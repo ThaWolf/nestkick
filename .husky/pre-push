@@ -1,0 +1,5 @@
+# Run type checking
+npm run type-check
+
+# Run linting on all files
+npm run lint 

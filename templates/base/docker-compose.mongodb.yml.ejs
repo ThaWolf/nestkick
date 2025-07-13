@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: <%= projectName %>-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=mongodb://mongo:27017/<%= projectName %>
+      - DB_HOST=mongo
+      - DB_PORT=27017
+      - DB_DATABASE=<%= projectName %>
+      - DB_USERNAME=
+      - DB_PASSWORD=
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - nestkick-network
+    restart: unless-stopped
+
+  database:
+    container_name: <%= projectName %>-database
+    image: mongo:7.0
+    environment:
+      - MONGO_INITDB_DATABASE=<%= projectName %>
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./docker/mongodb/init:/docker-entrypoint-initdb.d
+    networks:
+      - nestkick-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mongodb_data:
+
+networks:
+  nestkick-network:
+    driver: bridge 

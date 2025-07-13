@@ -1,0 +1,25 @@
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('PORT', 3000);
+  
+  app.enableCors();
+  
+  await app.listen(port);
+  
+  // Branded startup message
+  console.log('\n🎉 Welcome to your new NestJS application!');
+  console.log(`📦 Project: ${process.env.npm_package_name || '<%= projectName %>'}`);
+  console.log(`🚀 Server running on: http://localhost:${port}`);
+  console.log(`🗄️  Database: <%= database %> with <%= orm.toUpperCase() %>`);
+  <% if (docker) { %>console.log(`🐳 Docker: Ready to use with docker-compose up`);<% } %>
+  console.log(`⚡ Powered by Nestkick - https://github.com/ThaWolf/nestkick`);
+  console.log('📖 Happy coding! 🎯\n');
+}
+
+bootstrap(); 

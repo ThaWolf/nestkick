@@ -1,0 +1,277 @@
+# <%= projectName %>
+
+[![GitHub release](https://img.shields.io/github/v/release/username/<%= projectName %>)](https://github.com/username/<%= projectName %>/releases)
+[![GitHub stars](https://img.shields.io/github/stars/username/<%= projectName %>)](https://github.com/username/<%= projectName %>/stargazers)
+[![GitHub license](https://img.shields.io/github/license/username/<%= projectName %>)](https://github.com/username/<%= projectName %>/blob/main/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/username/<%= projectName %>)](https://github.com/username/<%= projectName %>/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/username/<%= projectName %>)](https://github.com/username/<%= projectName %>/pulls)
+[![GitHub contributors](https://img.shields.io/github/contributors/username/<%= projectName %>)](https://github.com/username/<%= projectName %>/graphs/contributors)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/username/<%= projectName %>)](https://github.com/username/<%= projectName %>/graphs/commit-activity)
+[![GitHub last commit](https://img.shields.io/github/last-commit/username/<%= projectName %>)](https://github.com/username/<%= projectName %>/commits/main)
+[![GitHub workflow status](https://img.shields.io/github/actions/workflow/status/username/<%= projectName %>/ci.yml)](https://github.com/username/<%= projectName %>/actions)
+[![GitHub code size](https://img.shields.io/github/languages/code-size/username/<%= projectName %>)](https://github.com/username/<%= projectName %>)
+[![GitHub repo size](https://img.shields.io/github/repo-size/username/<%= projectName %>)](https://github.com/username/<%= projectName %>)
+
+> **A production-ready NestJS API** 🚀
+
+A modern, scalable NestJS application built with <%= orm.charAt(0).toUpperCase() + orm.slice(1) %> and <%= database.charAt(0).toUpperCase() + database.slice(1) %>.
+
+## ✨ Features
+
+- 🚀 **NestJS Framework**: Modern, scalable Node.js framework
+- 🗄️ **<%= orm.charAt(0).toUpperCase() + orm.slice(1) %> ORM**: Type-safe database operations
+- 🐘 **<%= database.charAt(0).toUpperCase() + database.slice(1) %> Database**: Robust data storage
+- 🐳 **Docker Support**: Complete containerization setup
+- ✅ **TypeScript**: Full type safety and IntelliSense
+- 🧪 **Testing**: Comprehensive test suite with Jest
+- 🔒 **Security**: Built-in security best practices
+- 📊 **Monitoring**: Health checks and logging
+- 🚀 **CI/CD**: Automated testing and deployment
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+ 
+- <%= database === 'postgres' ? 'PostgreSQL' : database === 'mysql' ? 'MySQL' : database === 'mongodb' ? 'MongoDB' : 'SQLite' %>
+- Docker (optional, for containerized development)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/username/<%= projectName %>.git
+   cd <%= projectName %>
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+4. **Database Setup**
+   ```bash
+   # For <%= database === 'postgres' ? 'PostgreSQL' : database === 'mysql' ? 'MySQL' : database === 'mongodb' ? 'MongoDB' : 'SQLite' %>
+   npm run db:migrate
+   npm run db:seed
+   ```
+
+5. **Start Development Server**
+   ```bash
+   npm run start:dev
+   ```
+
+### Docker Setup
+
+```bash
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+## 📖 API Documentation
+
+Once the server is running, you can access:
+
+- **API Documentation**: http://localhost:3000/api
+- **Health Check**: http://localhost:3000/health
+- **Metrics**: http://localhost:3000/metrics
+
+## 🛠️ Development
+
+### Available Scripts
+
+```bash
+# Development
+npm run start:dev          # Start development server
+npm run start:debug        # Start with debug mode
+npm run start:prod         # Start production server
+
+# Database
+npm run db:migrate         # Run database migrations
+npm run db:seed            # Seed database with sample data
+npm run db:reset           # Reset database
+
+# Testing
+npm run test               # Run unit tests
+npm run test:e2e           # Run end-to-end tests
+npm run test:cov           # Run tests with coverage
+npm run test:watch         # Run tests in watch mode
+
+# Linting & Formatting
+npm run lint               # Run ESLint
+npm run lint:fix           # Fix ESLint errors
+npm run format             # Format code with Prettier
+
+# Build
+npm run build              # Build the application
+npm run build:watch        # Build in watch mode
+```
+
+### Project Structure
+
+```
+src/
+├── controllers/          # Request handlers
+├── services/            # Business logic
+├── modules/             # Feature modules
+├── dto/                 # Data transfer objects
+├── entities/            # Database entities
+├── config/              # Configuration files
+└── main.ts              # Application entry point
+```
+
+## 🧪 Testing
+
+### Unit Tests
+```bash
+npm run test
+```
+
+### E2E Tests
+```bash
+npm run test:e2e
+```
+
+### Test Coverage
+```bash
+npm run test:cov
+```
+
+## 🐳 Docker
+
+### Development
+```bash
+docker-compose up -d
+```
+
+### Production
+```bash
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+### Multi-Database Testing
+```bash
+docker-compose -f docker-compose.multi.yml up -d
+```
+
+## 📊 Monitoring
+
+### Health Checks
+- **Application**: `GET /health`
+- **Database**: `GET /health/db`
+- **Memory**: `GET /health/memory`
+
+### Metrics
+- **Prometheus**: `GET /metrics`
+- **Application Metrics**: Available at `/metrics`
+
+## 🔒 Security
+
+This project includes several security features:
+
+- **Input Validation**: All inputs are validated using DTOs
+- **Rate Limiting**: Built-in rate limiting for API endpoints
+- **CORS**: Configurable Cross-Origin Resource Sharing
+- **Helmet**: Security headers middleware
+- **JWT Authentication**: Secure token-based authentication
+
+## 🚀 Deployment
+
+### Environment Variables
+
+Required environment variables:
+
+```env
+# Application
+NODE_ENV=production
+PORT=3000
+
+# Database
+DATABASE_URL=<%= database === 'postgres' ? 'postgresql://user:password@localhost:5432/dbname' : database === 'mysql' ? 'mysql://user:password@localhost:3306/dbname' : database === 'mongodb' ? 'mongodb://localhost:27017/dbname' : 'file:./data/database.sqlite' %>
+
+# JWT
+JWT_SECRET=your-super-secret-jwt-key
+
+# Logging
+LOG_LEVEL=info
+```
+
+### Production Deployment
+
+1. **Build the application**
+   ```bash
+   npm run build
+   ```
+
+2. **Set environment variables**
+   ```bash
+   export NODE_ENV=production
+   export DATABASE_URL=your-production-database-url
+   ```
+
+3. **Start the application**
+   ```bash
+   npm run start:prod
+   ```
+
+### Docker Deployment
+
+```bash
+# Build production image
+docker build -f Dockerfile.prod -t <%= projectName %>:latest .
+
+# Run production container
+docker run -d \
+  --name <%= projectName %> \
+  -p 3000:3000 \
+  -e NODE_ENV=production \
+  -e DATABASE_URL=your-production-database-url \
+  <%= projectName %>:latest
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md).
+
+### Development Setup
+```bash
+git clone https://github.com/username/<%= projectName %>.git
+cd <%= projectName %>
+npm install
+npm run start:dev
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [NestJS](https://nestjs.com/) - The amazing framework that makes this possible
+- [<%= orm.charAt(0).toUpperCase() + orm.slice(1) %>](https://<%= orm === 'prisma' ? 'prisma.io' : orm === 'typeorm' ? 'typeorm.io' : 'sequelize.org' %>) - Database ORM
+- [<%= database.charAt(0).toUpperCase() + database.slice(1) %>](https://<%= database === 'postgres' ? 'postgresql.org' : database === 'mysql' ? 'mysql.com' : database === 'mongodb' ? 'mongodb.com' : 'sqlite.org' %>) - Database
+
+## 📞 Support
+
+- 📧 Email: support@<%= projectName %>.dev
+- 💬 Discord: [Join our community](https://discord.gg/<%= projectName %>)
+- 🐛 Issues: [GitHub Issues](https://github.com/username/<%= projectName %>/issues)
+- 📖 Docs: [Documentation](https://docs.<%= projectName %>.dev)
+
+---
+
+<div align="center">
+Made with ❤️ by the <%= projectName %> team
+</div> 

@@ -1,0 +1,32 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+<% if (orm === 'typeorm') { %>
+import { DatabaseModule } from './modules/database.module';
+import { UserModule } from './modules/user.module';
+<% } %>
+<% if (orm === 'sequelize') { %>
+import { DatabaseModule } from './modules/database.module';
+import { UserModule } from './modules/user.module';
+<% } %>
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
+    }),
+<% if (orm === 'typeorm') { %>
+    DatabaseModule,
+    UserModule,
+<% } %>
+<% if (orm === 'sequelize') { %>
+    DatabaseModule,
+    UserModule,
+<% } %>
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {} 

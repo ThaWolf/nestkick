@@ -1,0 +1,284 @@
+# Troubleshooting Guide
+
+This guide helps you resolve common issues when working with your <%= projectName %> project.
+
+## 🚨 Common Issues
+
+### Database Connection Issues
+
+#### PostgreSQL
+```bash
+# Error: connection refused
+# Solution: Check if PostgreSQL is running
+sudo systemctl start postgresql
+# or
+brew services start postgresql
+
+# Error: authentication failed
+# Solution: Check your DATABASE_URL in .env
+DATABASE_URL=postgresql://username:password@localhost:5432/<%= projectName %>
+```
+
+#### MySQL
+```bash
+# Error: connection refused
+# Solution: Check if MySQL is running
+sudo systemctl start mysql
+# or
+brew services start mysql
+
+# Error: access denied
+# Solution: Check your DATABASE_URL in .env
+DATABASE_URL=mysql://username:password@localhost:3306/<%= projectName %>
+```
+
+#### MongoDB
+```bash
+# Error: connection refused
+# Solution: Check if MongoDB is running
+sudo systemctl start mongod
+# or
+brew services start mongodb-community
+
+# Error: authentication failed
+# Solution: Check your DATABASE_URL in .env
+DATABASE_URL=mongodb://localhost:27017/<%= projectName %>
+```
+
+#### SQLite
+```bash
+# Error: database is locked
+# Solution: Check file permissions and ensure no other process is using the database
+chmod 644 data/database.sqlite
+
+# Error: no such table
+# Solution: Run migrations
+npm run db:migrate
+```
+
+### Docker Issues
+
+#### Container won't start
+```bash
+# Check container logs
+docker-compose logs app
+
+# Check if ports are already in use
+lsof -i :3000
+lsof -i :5432
+
+# Restart containers
+docker-compose down
+docker-compose up -d
+```
+
+#### Database container issues
+```bash
+# Check database container status
+docker-compose ps
+
+# View database logs
+docker-compose logs database
+
+# Reset database volume
+docker-compose down -v
+docker-compose up -d
+```
+
+#### Permission issues
+```bash
+# Fix file permissions
+sudo chown -R $USER:$USER .
+
+# Fix Docker permissions (Linux)
+sudo usermod -aG docker $USER
+```
+
+### Build Issues
+
+#### TypeScript compilation errors
+```bash
+# Clear build cache
+rm -rf dist
+npm run build
+
+# Check TypeScript configuration
+npx tsc --noEmit
+```
+
+#### Dependency issues
+```bash
+# Clear node_modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
+
+# Update dependencies
+npm update
+```
+
+#### Memory issues during build
+```bash
+# Increase Node.js memory limit
+export NODE_OPTIONS="--max-old-space-size=4096"
+npm run build
+```
+
+### Testing Issues
+
+#### Tests failing
+```bash
+# Run tests with verbose output
+npm run test -- --verbose
+
+# Run specific test file
+npm run test -- src/services/user.service.spec.ts
+
+# Check test coverage
+npm run test:cov
+```
+
+#### E2E test issues
+```bash
+# Start test database
+docker-compose -f docker-compose.test.yml up -d
+
+# Run E2E tests
+npm run test:e2e
+
+# Clean up test database
+docker-compose -f docker-compose.test.yml down
+```
+
+### Runtime Issues
+
+#### Application won't start
+```bash
+# Check if port is already in use
+lsof -i :3000
+
+# Check environment variables
+cat .env
+
+# Run with debug logging
+DEBUG=* npm run start:dev
+```
+
+#### Memory leaks
+```bash
+# Monitor memory usage
+node --inspect npm run start:dev
+
+# Check for memory leaks
+npm run start:dev -- --max-old-space-size=2048
+```
+
+#### Performance issues
+```bash
+# Enable performance monitoring
+NODE_ENV=development npm run start:dev
+
+# Check database query performance
+# Add logging to your ORM configuration
+```
+
+## 🔧 Debugging Tools
+
+### Logging
+```typescript
+// Add debug logging
+import { Logger } from '@nestjs/common';
+
+const logger = new Logger('YourService');
+logger.debug('Debug message');
+logger.log('Info message');
+logger.warn('Warning message');
+logger.error('Error message');
+```
+
+### Database Debugging
+```bash
+# Enable query logging for <%= orm %>
+# Add to your configuration file
+logging: true
+```
+
+### Network Debugging
+```bash
+# Check network connectivity
+curl -v http://localhost:3000/health
+
+# Check database connectivity
+# PostgreSQL
+psql -h localhost -U username -d <%= projectName %>
+
+# MySQL
+mysql -h localhost -u username -p <%= projectName %>
+
+# MongoDB
+mongosh mongodb://localhost:27017/<%= projectName %>
+```
+
+## 🛠️ Maintenance
+
+### Regular Maintenance Tasks
+```bash
+# Update dependencies
+npm update
+
+# Check for security vulnerabilities
+npm audit
+npm audit fix
+
+# Clean up Docker
+docker system prune -f
+
+# Backup database
+# PostgreSQL
+pg_dump <%= projectName %> > backup.sql
+
+# MySQL
+mysqldump <%= projectName %> > backup.sql
+
+# MongoDB
+mongodump --db <%= projectName %> --out backup/
+```
+
+### Performance Optimization
+```bash
+# Analyze bundle size
+npm run build:analyze
+
+# Check for unused dependencies
+npx depcheck
+
+# Optimize images
+docker build --target production .
+```
+
+## 📞 Getting Help
+
+If you're still experiencing issues:
+
+1. **Check the logs**: Look at application and database logs for error messages
+2. **Search existing issues**: Check if someone else has reported the same problem
+3. **Create a minimal reproduction**: Try to isolate the issue in a simple test case
+4. **Report the issue**: Include error messages, logs, and steps to reproduce
+
+### Useful Resources
+- [NestJS Documentation](https://docs.nestjs.com/)
+- [<%= orm.charAt(0).toUpperCase() + orm.slice(1) %> Documentation](https://<%= orm === 'prisma' ? 'prisma.io/docs' : orm === 'typeorm' ? 'typeorm.io' : 'sequelize.org/docs' %>)
+- [<%= database.charAt(0).toUpperCase() + database.slice(1) %> Documentation](https://<%= database === 'postgres' ? 'postgresql.org/docs' : database === 'mysql' ? 'dev.mysql.com/doc' : database === 'mongodb' ? 'docs.mongodb.com' : 'sqlite.org/docs.html' %>)
+- [Docker Documentation](https://docs.docker.com/)
+
+### Community Support
+- [GitHub Issues](https://github.com/username/<%= projectName %>/issues)
+- [Stack Overflow](https://stackoverflow.com/questions/tagged/nestjs)
+- [Discord Community](https://discord.gg/nestjs)
+
+---
+
+**Remember**: When reporting issues, always include:
+- Error messages
+- Steps to reproduce
+- Environment details (OS, Node.js version, etc.)
+- Relevant configuration files 

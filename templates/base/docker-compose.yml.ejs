@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: <%= projectName %>-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - database
+    networks:
+      - nestkick-network
+    restart: unless-stopped
+
+  database:
+    container_name: <%= projectName %>-database
+    # Database service will be overridden by specific templates
+    image: placeholder
+    environment:
+      - placeholder=true
+    volumes:
+      - db_data:/var/lib/db
+    networks:
+      - nestkick-network
+    restart: unless-stopped
+
+volumes:
+  db_data:
+
+networks:
+  nestkick-network:
+    driver: bridge 
